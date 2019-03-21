@@ -36,3 +36,12 @@ Simply copy project2.py onto your machine and run it with python
 ## Authors
 
 * **David Nadwodny** - - [Navoodknee](https://github.com/navoodknee)
+
+
+## Acknowledgments
+
+* Special Thanks to my reviewer(s) and the whole Udacity team
+* Monster Energy Drink - Thank you for keeping me awake
+* Flask Project team for great docs/tutorials
+
+
