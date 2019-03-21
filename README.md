@@ -15,9 +15,9 @@ You will need the following to run Project 1:
 
 ### Installing
 
-Simply copy project2.py onto your machine and run it with python 
+Simply copy application.py onto your machine and run it with python 
 
-> python project2.py
+> python application.py
 
 > $ python application.py
 >  * Serving Flask app "project2" (lazy loading)
