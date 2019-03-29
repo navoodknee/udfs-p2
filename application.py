@@ -31,14 +31,12 @@ session = DBSession()
 @app.route('/')
 def landing():
 
-    categories = session.query(Item).all()
+    categories = session.query(Category).all()
+    session.commit()
+    items = session.query(Item).all()
+    session.commit()
 
-    output = ""
-    for c in categories:
-        output += c.name
-        output += '</br>'
-    return output
-    #return render_template('index.html')
+    return render_template('index.html', categories=categories, items=items)
 
 
 # lists all categories and list of latest items

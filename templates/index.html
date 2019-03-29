@@ -3,9 +3,34 @@
         <button class="btn-small btn-outline-info" type="submit">Login</button>
         <!-- <button class="btn-small btn-outline-info" type="submit">Logout</button> -->
         {% endblock %}
+
+
         {% block sidebar %}
-        Hello from the side bar
+
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+              <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+
+
+        {% for cat in categories %}
+
+        <li class="nav-item">
+            <a class="nav-link" href="{{ cat.name }}">
+              <i data-feather="file"></i>
+              {{ cat.name }}
+            </a>
+          </li>
+
+         {% endfor %}
+
+                </ul>
+            </div>
+        </nav>
         {% endblock %}
+
+
         {% block main_content %}
-        Hello from the main content
+            {% for item in items %}
+                <li><a href="{{ item.name }}">{{ item.name }}</a></li>
+         {% endfor %}
         {% endblock %}
