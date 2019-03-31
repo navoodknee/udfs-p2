@@ -1,8 +1,4 @@
 {% extends 'base.html'%}
-        {% block login_form %}
-        <button class="btn-small btn-outline-info" type="submit">Login</button>
-        <!-- <button class="btn-small btn-outline-info" type="submit">Logout</button> -->
-        {% endblock %}
 
 
         {% block sidebar %}
@@ -30,7 +26,43 @@
 
 
         {% block main_content %}
+         <h3>Session is {{session_id}}</h3>
             {% for item in items %}
                 <li><a href="{{ item.name }}">{{ item.name }}</a></li>
          {% endfor %}
+
+<script>
+function signInCallback(authResult) {
+  if (authResult['code']) {
+    console.log(authResult)
+    // TODO manage the hiding and unhiding of the things
+
+    //$('#signinButton').attr('style', 'display: none');
+    //$('#signoutButton').attr('style', display: block)
+    // Send the code to the server
+    $.ajax({
+
+      // Send POST HTTP to the auth url
+      type: 'POST',
+      url: '/auth',
+
+      // to protect against CSRF attacks.
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      contentType: 'application/octet-stream; charset=utf-8',
+      success: function(result) {
+          console.log(result)
+      },
+      processData: false,
+      data: authResult['code']
+
+    });
+  } else {
+    cosole.log("Houston we have a problem")
+  }
+}
+</script>
+
+
         {% endblock %}

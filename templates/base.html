@@ -11,8 +11,27 @@ by: David Nadwodny
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap 4.1 style sheet -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <!-- feather icons for sidebarinclude -->
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-
+    <!-- Google Oauth2 includes -->
+      <!-- BEGIN Pre-requisites -->
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js">
+      </script>
+      <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer>
+      </script>
+    <!-- Initialize the google client OAuth Library with our client id -->
+      <script>
+        function start() {
+          gapi.load('auth2', function() {
+            auth2 = gapi.auth2.init({
+              client_id: '650448870586-s4fs7m3nichgvvjl6fs7cj0vmocaq0om.apps.googleusercontent.com',
+              // Scopes to request in addition to 'profile' and 'email'
+              //scope: 'additional_scope'
+            });
+          });
+        }
+      </script>
+</head>
     {% endblock %}
     <title>Office Stuff</title>
 </head>
@@ -88,12 +107,24 @@ body {
     <!-- Nav bar / login butons -->
     <nav class="shadow p-2 navbar navbar-dark fixed-top bg-dark flex-md-nowrap">
         <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Itemify</a>
-          <form class="form-inline">
-            {% block login_form %}
+            <button  id="signinButton" class="btn-small btn-outline-info" >Login</button>
+            <script>
+              $('#signinButton').click(function() {
+                auth2.grantOfflineAccess().then(signInCallback);
+              });
+            </script>
+            <button id="signoutButton" class="btn-small btn-outline-info d-none" type="submit">Logout</button>
+            <script>
+              $('#signoutButton').click(function() {
+                // log user out and show the login button again
+                auth2.signOut().then(function () {
+                    $('#signoutButton').addClass("d-none");
+                    $('#signinButton').attr('style', 'display: block');
+                    console.log("User is logged out");
+                });
+              });
+            </script>
 
-
-            {% endblock %}
-            </form>
     </nav>
     <div class="container-fluid">
 
@@ -115,11 +146,42 @@ body {
     </div>
 
    <!-- Bootstrap 4.1 js includes -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
    <script>
-      feather.replace()
+      feather.replace();
     </script>
+
+<script>
+function signInCallback(authResult) {
+  if (authResult['code']) {
+    console.log(authResult)
+    // Hide login, unhide logout
+    $('#signinButton').attr('style', 'display: none');
+    $('#signoutButton').removeClass("d-none");
+    // Send the code to the server
+    $.ajax({
+      type: 'POST',
+      url: '/auth',
+      // Always include an `X-Requested-With` header in every AJAX request,
+      // to protect against CSRF attacks.
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      contentType: 'application/octet-stream; charset=utf-8',
+      success: function(result) {
+          console.log(result)
+      },
+      processData: false,
+      data: authResult['code']
+
+    });
+  } else {
+    // There was an error.
+  }
+}
+</script>
 </body>
 </html>
