@@ -120,6 +120,7 @@ body {
                 auth2.signOut().then(function () {
                     $('#signoutButton').addClass("d-none");
                     $('#signinButton').attr('style', 'display: block');
+                    signOutCallback();
                     console.log("User is logged out");
                 });
               });
@@ -157,16 +158,15 @@ body {
 <script>
 function signInCallback(authResult) {
   if (authResult['code']) {
-    console.log(authResult)
+
     // Hide login, unhide logout
     $('#signinButton').attr('style', 'display: none');
     $('#signoutButton').removeClass("d-none");
     // Send the code to the server
     $.ajax({
       type: 'POST',
-      url: '/auth',
-      // Always include an `X-Requested-With` header in every AJAX request,
-      // to protect against CSRF attacks.
+      url: '/auth?state={{state}}',
+      // Potect against CSRF attacks.
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
       },
@@ -181,6 +181,26 @@ function signInCallback(authResult) {
   } else {
     // There was an error.
   }
+}
+</script>
+<script>
+function signOutCallback() {
+
+    $.ajax({
+      type: 'POST',
+      url: '/logout?state={{state}}',
+      // Potect against CSRF attacks.
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      contentType: 'application/octet-stream; charset=utf-8',
+      success: function(result) {
+          window.location.replace('/')
+          console.log(result)
+      },
+
+    });
+
 }
 </script>
 </body>

@@ -21,89 +21,135 @@ import httplib2
 from oauth2client import client
 import json
 
+# application config
 app = Flask(__name__)
-
 CLIENT_SECRET_FILE = 'client_secrets.json'
 CLIENT_ID = json.loads(open('client_secrets.json',
                             'r').read())['web']['client_id']
 APPLICATION_NAME = "Itemify"
 app.secret_key = "super secret key"
 
+# Database / Session set up
 engine = create_engine(
     'sqlite:///items.db', connect_args={'check_same_thread': False})
 Base.metadata.bind = engine
-
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
-# helper funtion that sets the state
-def getSession():
+# START Utilities
+# helper function that checks sessions againts requests
+def checkState(current_session, saved_session):
+    if (current_session == saved_session):
+        return True
+    else:
+        return False
+
+
+# helper function that sets the state
+def setSession():
     state = ''.join(
         random.choice(string.ascii_uppercase + string.digits)
         for x in range(32))
     login_session['state'] = state
+    print('%s state is', state)
+    return(state)
 
 
+# START VIEWS
 # main landing view
+# lists all categories and list of latest items
+# authenticated users can add items
 @app.route('/')
 def landing():
 
+    # New session..
+    try:
+        state = login_session['state']
+    except KeyError:
+        state = setSession()
+        print("- %s" % login_session['state'])
+    # Get all the categories
     categories = session.query(Category).all()
     session.commit()
+    # Get all the items in reverse order
     items = session.query(Item).all()
     session.commit()
     return render_template(
         'index.html',
         categories=categories,
         items=items,
-        session_id=login_session['state'])
+        state=state)
 
 
 @app.route('/test')
-def test():
-    return render_template('login.html')
+def test(args_session, saved_session):
+    return render_template('test.html')
 
-
+# Receives AJAX from signInButton and validates google login
 @app.route('/auth', methods=['POST'])
 def auth():
 
-    # Grab state here
-    login_session['state'] = ''.join(
-        random.choice(string.ascii_uppercase + string.digits)
-        for x in range(32))
-    if request.method == 'POST':
+    # validate session tokenn
+    if(checkState(request.args.get('state'), login_session['state'])):
+        if request.method == 'POST':
 
-        # get auth code out of request.data
-        auth_code = request.data
+            # get auth code out of request.data
+            auth_code = request.data
 
-        # CSRF protection. Redirect if bad
-        if not request.headers.get('X-Requested-With'):
+            # CSRF protection. Redirect if bad
+            if not request.headers.get('X-Requested-With'):
+                return redirect(url_for('landing'))
+
+            # Exchange auth code for access token, refresh token, and ID token
+            credentials = client.credentials_from_clientsecrets_and_code(
+                CLIENT_SECRET_FILE, [
+                    'https://www.googleapis.com/auth/drive.appdata', 'profile',
+                    'email'
+                ], auth_code)
+
+            # Get profile info from ID token and add to session
+            login_session['userid'] = credentials.id_token['sub']
+            login_session['email'] = credentials.id_token['email']
+            login_session['name'] = credentials.id_token['name']
+
+            # create new user if they aren't in our User table
+
+            return login_session['userid'] + " Logged in"
+    # Fail silently to give no useful feedback to would be attacker
+    else:
+        return redirect(url_for('landing'))
+
+# Receives AJAX from signOutButton / logs user out and redirects them to /
+@app.route('/logout', methods=['POST'])
+def logout():
+
+    # validate session tokenn
+    if(checkState(request.args.get('state'), login_session['state'])):
+        if request.method == 'POST':
+
+            # CSRF protection. Redirect if bad
+            if not request.headers.get('X-Requested-With'):
+                return redirect(url_for('landing'))
+            # clear out the silentl session vars
+            login_session.clear()
+            # just return
             return redirect(url_for('landing'))
 
-        # Exchange auth code for access token, refresh token, and ID token
-        credentials = client.credentials_from_clientsecrets_and_code(
-            CLIENT_SECRET_FILE, [
-                'https://www.googleapis.com/auth/drive.appdata', 'profile',
-                'email'
-            ], auth_code)
-
-        # Get profile info from ID token
-        userid = credentials.id_token['sub']
-        email = credentials.id_token['email']
-        name = credentials.id_token['name']
-        return userid + " " + email + " " + name
-
-
-# lists all categories and list of latest items
-# authenticated users can add items
+    # Fail silently to give no useful feedback to would be attacker
+    else:
+        return redirect(url_for('landing'))
 
 # Category Detail view
 # lists all items that are in a category
 # authenticated users may edit / delete
-
+@app.route('/cat/<int:category_id>/')
+def category_view(category_id):
+    return(None)
 # Item Detail view
 # shows details of a specific item
 # authenticated users may edit / delete
-
+@app.route('/cat/<int:category_id>/item/<int:item_id>/')
+def item_view(item_id):
+    return(None)
 # JSON endpoint for entire list
