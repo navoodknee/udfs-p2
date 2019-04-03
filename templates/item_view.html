@@ -27,9 +27,16 @@
 
 
         {% block main_content %}
-         <h3>Session is {{state}} </h3>
+         <h4>Session is {{state}}</h4>
 
-         <li><a href="{{url_for('item_view', category_id = item.category.id, item_id = item.id)}}">{{ item.name }} - {{item.description}} </a></li>
+         <div class="jumbotron">
+            <h1 class="display-4">{{ item.name }}</h1>
+            <p class="lead">{{ item.description}}</p>
+            <hr class="my-4">
+
+            <a class="btn btn-info btn-lg" href="#" role="button">Edit</a>
+            <a class="btn btn-info btn-lg" href="#" role="button">Delete</a>
+          </div>
 
 
         {% endblock %}

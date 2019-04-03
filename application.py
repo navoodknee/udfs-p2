@@ -28,7 +28,6 @@ CLIENT_ID = json.loads(open('client_secrets.json',
                             'r').read())['web']['client_id']
 APPLICATION_NAME = "Itemify"
 app.secret_key = "super secret key"
-
 # Database / Session set up
 engine = create_engine(
     'sqlite:///items.db', connect_args={'check_same_thread': False})
