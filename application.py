@@ -9,7 +9,7 @@ Some Concept inspired by/taxken from:
 
 """
 import random, string
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Item, Category, User
 
@@ -73,7 +73,7 @@ def landing():
     categories = session.query(Category).all()
     session.commit()
     # Get all the items in reverse order
-    items = session.query(Item).all()
+    items = session.query(Item).order_by(desc(Item.id))
     session.commit()
     return render_template(
         'index.html',
@@ -145,11 +145,38 @@ def logout():
 # authenticated users may edit / delete
 @app.route('/cat/<int:category_id>/')
 def category_view(category_id):
-    return(None)
+    # New session..
+    try:
+        state = login_session['state']
+    except KeyError:
+        state = setSession()
+        print("- %s" % login_session['state'])
+    # Get all the categories
+    categories = session.query(Category).all()
+    session.commit()
+    # Get all the items in reverse order
+    items = session.query(Item).filter_by(item_id=category_id)
+    session.commit()
+    return render_template(
+        'category_view.html', categories=categories, items=items, state=state)
 # Item Detail view
 # shows details of a specific item
 # authenticated users may edit / delete
 @app.route('/cat/<int:category_id>/item/<int:item_id>/')
-def item_view(item_id):
+def item_view(category_id, item_id):
+    # New session..
+    try:
+        state = login_session['state']
+    except KeyError:
+        state = setSession()
+    # Get all the categories
+    categories = session.query(Category).all()
+    session.commit()
+
+    item = session.query(Item).get(item_id)
+    print("item is %s" % str(item_id))
+    session.commit()
+    return render_template(
+        'item_view.html', categories=categories, item=item, state=state)
     return(None)
 # JSON endpoint for entire list
