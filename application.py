@@ -45,6 +45,17 @@ def checkState(current_session, saved_session):
         return False
 
 
+# used to determine if we need to hide or unhide the buttons
+def userLoggedIn():
+    try:
+        login_session['email']
+        print("logged in")
+        return True
+    except KeyError:
+        print("not... loged in")
+        return False
+
+
 # helper function that sets the state
 def setSession():
     state = ''.join(
@@ -68,6 +79,14 @@ def landing():
     except KeyError:
         state = setSession()
         print("- %s" % login_session['state'])
+
+    # Are we logged in?
+    if(userLoggedIn()):
+        loggedIn = True
+    else:
+        loggedIn = False
+        print("loggedIn is False")
+
     # Get all the categories
     categories = session.query(Category).all()
     session.commit()
@@ -78,7 +97,8 @@ def landing():
         'index.html',
         categories=categories,
         items=items,
-        state=state)
+        state=state,
+        loggedIn=loggedIn)
 
 
 @app.route('/test')
@@ -150,6 +170,13 @@ def category_view(category_id):
     except KeyError:
         state = setSession()
         print("- %s" % login_session['state'])
+
+    # Are we logged in?
+    if(userLoggedIn()):
+        loggedIn = True
+    else:
+        loggedIn = False
+        print("loggedIn is False")
     # Get all the categories
     categories = session.query(Category).all()
     session.commit()
@@ -157,7 +184,12 @@ def category_view(category_id):
     items = session.query(Item).filter_by(item_id=category_id)
     session.commit()
     return render_template(
-        'category_view.html', categories=categories, items=items, state=state)
+       'category_view.html',
+       categories=categories,
+       items=items,
+       state=state,
+       loggedIn=loggedIn)
+
 # Item Detail view
 # shows details of a specific item
 # authenticated users may edit / delete
@@ -168,6 +200,12 @@ def item_view(category_id, item_id):
         state = login_session['state']
     except KeyError:
         state = setSession()
+    # Are we logged in?
+    if(userLoggedIn()):
+        loggedIn = True
+    else:
+        loggedIn = False
+        print("loggedIn is False")
     # Get all the categories
     categories = session.query(Category).all()
     session.commit()
@@ -176,6 +214,6 @@ def item_view(category_id, item_id):
     print("item is %s" % str(item_id))
     session.commit()
     return render_template(
-        'item_view.html', categories=categories, item=item, state=state)
+        'item_view.html', categories=categories, item=item, state=state, loggedIn=loggedIn)
     return(None)
 # JSON endpoint for entire list

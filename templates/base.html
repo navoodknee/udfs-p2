@@ -6,7 +6,7 @@ by: David Nadwodny
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    {% block header %}
+
     <!-- BootStrap 4.1x responsive media queries -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap 4.1 style sheet -->
@@ -33,7 +33,9 @@ by: David Nadwodny
       </script>
 
 </head>
+    {% block header %}
     {% endblock %}
+
     <title>Office Stuff</title>
 </head>
 <style>
@@ -204,5 +206,8 @@ function signOutCallback() {
 
 }
 </script>
+{% block footer %}
+{% endblock %}
+
 </body>
 </html>

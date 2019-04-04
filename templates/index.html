@@ -1,6 +1,7 @@
 {% extends 'base.html'%}
 
 
+
         {% block sidebar %}
 
             <nav class="col-md-2 d-none d-md-block bg-light sidebar">
@@ -35,4 +36,13 @@
             {% endfor %}
          </div>
 
+        {% endblock %}
+
+        {% block footer %}
+            {% if loggedIn %}
+              <script>
+                  $('#signinButton').attr('style', 'display: none');
+                  $('#signoutButton').removeClass("d-none");
+              </script>
+            {% endif %}
         {% endblock %}
