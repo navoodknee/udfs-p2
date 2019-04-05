@@ -214,6 +214,29 @@ def item_view(category_id, item_id):
     print("item is %s" % str(item_id))
     session.commit()
     return render_template(
-        'item_view.html', categories=categories, item=item, state=state, loggedIn=loggedIn)
-    return(None)
+        'item_view.html',
+        categories=categories,
+        item=item,
+        state=state,
+        loggedIn=loggedIn)
+
+
+# My items interface
+@app.route('/myitems/')
+def my_items():
+    # New session..
+    try:
+        state = login_session['state']
+    except KeyError:
+        state = setSession()
+    # Are we logged in?
+    if(userLoggedIn()):
+        loggedIn = True
+    else:
+        loggedIn = False
+        print("loggedIn is False")
+    return render_template(
+       'myitems_view.html',
+       state=state,
+       loggedIn=loggedIn)
 # JSON endpoint for entire list

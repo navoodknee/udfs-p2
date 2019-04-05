@@ -2,42 +2,28 @@
 
 
         {% block sidebar %}
-
             <nav class="col-md-2 d-none d-md-block bg-light sidebar">
               <div class="sidebar-sticky">
                 <ul class="nav flex-column">
 
 
         {% for cat in categories %}
-
         <li class="nav-item">
             <a class="nav-link" href="{{url_for('category_view', category_id = cat.id)}}">
               <i data-feather="file"></i>
               {{ cat.name }}
             </a>
-          </li>
-
+        </li>
          {% endfor %}
-
-                </ul>
-            </div>
-        </nav>
-
         {% endblock %}
 
 
         {% block main_content %}
         <h4>Session is {{state}}</h4>
-            {% for item in items %}
-                <a href="{{url_for('item_view', category_id = item.category.id, item_id = item.id)}}" class="list-group-item list-group-item-action">{{ item.name}}</a>
-         {% endfor %}
+        <div class="list-group">
+        {% for item in items %}
+            <a href="{{url_for('item_view', category_id = item.category.id, item_id = item.id)}}" class="list-group-item list-group-item-action">{{ item.name}}</a>
+        {% endfor %}
+        </div>
+        {% endblock %}
 
-        {% endblock %}
-        {% block footer %}
-            {% if loggedIn %}
-              <script>
-                  $('#signinButton').attr('style', 'display: none');
-                  $('#signoutButton').removeClass("d-none");
-              </script>
-            {% endif %}
-        {% endblock %}

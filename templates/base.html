@@ -140,6 +140,16 @@ body {
 
 
                 {% endblock %}
+                <li id="myItems" class="nav-item d-none">
+                      <a class="nav-link" href="{{url_for('my_items')}}">
+                        <i data-feather="lock"></i>
+                        My Items
+                      </a>
+                  </li>
+                </ul>
+            </div>
+        </nav>
+
             </div>
             <div class="col-10">
                  {% block main_content %}
@@ -165,6 +175,7 @@ function signInCallback(authResult) {
     // Hide login, unhide logout
     $('#signinButton').attr('style', 'display: none');
     $('#signoutButton').removeClass("d-none");
+
     // Send the code to the server
     $.ajax({
       type: 'POST',
@@ -175,6 +186,8 @@ function signInCallback(authResult) {
       },
       contentType: 'application/octet-stream; charset=utf-8',
       success: function(result) {
+
+          window.location.replace('/');
           console.log(result)
       },
       processData: false,
@@ -198,7 +211,7 @@ function signOutCallback() {
       },
       contentType: 'application/octet-stream; charset=utf-8',
       success: function(result) {
-          window.location.replace('/')
+          window.location.replace('/');
           console.log(result)
       },
 
@@ -206,6 +219,13 @@ function signOutCallback() {
 
 }
 </script>
+{% if loggedIn %}
+  <script>
+      $('#signinButton').attr('style', 'display: none');
+      $('#signoutButton').removeClass("d-none");
+      $('#myItems').removeClass("d-none");
+  </script>
+{% endif %}
 {% block footer %}
 {% endblock %}
 

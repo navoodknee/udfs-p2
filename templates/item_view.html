@@ -19,10 +19,6 @@
 
          {% endfor %}
 
-                </ul>
-            </div>
-        </nav>
-
         {% endblock %}
 
 
@@ -40,11 +36,4 @@
 
 
         {% endblock %}
-        {% block footer %}
-            {% if loggedIn %}
-              <script>
-                  $('#signinButton').attr('style', 'display: none');
-                  $('#signoutButton').removeClass("d-none");
-              </script>
-            {% endif %}
-        {% endblock %}
+
