@@ -1,0 +1,32 @@
+{% extends 'base.html'%}
+
+
+        {% block sidebar %}
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+              <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+
+
+        {% for cat in categories %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('category_view', category_id = cat.id)}}">
+              <i data-feather="file"></i>
+              {{ cat.name }}
+            </a>
+        </li>
+         {% endfor %}
+        {% endblock %}
+
+
+        {% block main_content %}
+        <h4>Session is {{state}}</h4>
+          <form action="{{ url_for('newCategory') }}" method="POST">
+            <div class="form-group">
+              <label for="name">New Category</label>
+              <input type="text" name="name" class="form-control" id="categoryInput" aria-describedby="categoryHelp" placeholder="Enter New Category Name">
+              <small id="categoryHelp" class="form-text text-muted">Create new category for the system.</small>
+            </div>
+            <button type="submit" class="btn btn-info">Submit</button>
+          </form>
+        {% endblock %}
+

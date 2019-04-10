@@ -1,0 +1,32 @@
+{% extends 'base.html'%}
+
+
+        {% block sidebar %}
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+              <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+
+
+        {% for cat in categories %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('category_view', category_id = cat.id)}}">
+              <i data-feather="file"></i>
+              {{ cat.name }}
+            </a>
+        </li>
+         {% endfor %}
+        {% endblock %}
+
+
+        {% block main_content %}
+        <h4>Session is {{state}}</h4>
+          <form action="{{ url_for('deleteItem', item_id = item_id) }}" method="POST">
+            <div class="form-group">
+              <label for="name">Delete Item?</label>
+              <h6>{{deleteItem.name}}</h6>
+              <small id="categoryHelp" class="form-text text-muted">Delete this Item?</small>
+            </div>
+            <button type="submit" class="btn btn-info">Submit</button>
+          </form>
+        {% endblock %}
+

@@ -1,0 +1,49 @@
+{% extends 'base.html'%}
+
+
+        {% block sidebar %}
+            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+              <div class="sidebar-sticky">
+                <ul class="nav flex-column">
+
+
+        {% for cat in categories %}
+        <li class="nav-item">
+            <a class="nav-link" href="{{url_for('category_view', category_id = cat.id)}}">
+              <i data-feather="file"></i>
+              {{ cat.name }}
+            </a>
+        </li>
+         {% endfor %}
+        {% endblock %}
+
+
+        {% block main_content %}
+        <h4>Session is {{state}}</h4>
+        {% if userCategories != None %}
+          <form action="{{ url_for('newItem') }}" method="POST">
+            <div class="form-group">
+              <label for="name">New Item</label>
+              <input type="text" name="name" class="form-control" id="itemInput" aria-describedby="itemHelp" placeholder="Enter New Item Name">
+              <small id="itemHelp" class="form-text text-muted">New Item for the System.</small>
+                <div class="form-group">
+                <label for="categorySelect">Category select</label>
+                <select class="form-control" name="category" id="categorySelect">
+                  {% for cat in userCategories %}
+                      <option>{{cat.name}}</option>
+                  {% endfor %}
+                </select>
+                  <div class="form-group">
+                  <label for="description">Description</label>
+                  <textarea class="form-control" name="description" id="description" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-info">Submit</button>
+          </form>
+        {% else %}
+              <div class="alert alert-danger" role="alert">
+                   You haven't set up any categories.</div>
+        {% endif %}
+        {% endblock %}
+
