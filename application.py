@@ -257,7 +257,6 @@ def my_items():
             state=state,
             loggedIn=loggedIn)
     # Get user info
-
     try:
         user = session.query(User).filter_by(email=login_session['email']).one()
         session.commit()
@@ -417,5 +416,152 @@ def deleteCategory(category_id):
             items=items,
             state=state,
             loggedIn=loggedIn)
+@app.route('/myitems/itemy/new/', methods=['GET', 'POST'])
+def newItem():
+    # New session..
+    try:
+        state = login_session['state']
+    except KeyError:
+        state = setSession()
 
+    # Get all the categories
+    categories = session.query(Category).all()
+    session.commit()
+
+    # Get all the items in reverse order
+    items = session.query(Item).order_by(desc(Item.id))
+    session.commit()
+    # Are we logged in? If not, we shouldn't be here... back to start
+    if(userLoggedIn()):
+        loggedIn = True
+        user = session.query(User).filter_by(email=login_session['email']).one()
+        session.commit()
+    else:
+        loggedIn = False
+        print("loggedIn is False - Redirecting")
+        return render_template(
+            'index.html',
+            categories=categories,
+            items=items,
+            state=state,
+            loggedIn=loggedIn)
+        session.commit()
+    userCategories = session.query(Category).filter_by(user_id=user.id)
+    if request.method == 'POST':
+        #
+        category = session.query(Category).filter_by(name=request.form['category']).one()
+        newItem = Item(
+            name=request.form['name'],
+            description=request.form['description'],
+            user_id=user.id,
+            item_id=category.id)
+        session.add(newItem)
+        session.commit()
+        return redirect(url_for('my_items'))
+    else:
+        return render_template(
+            'newItem_view.html',
+            userCategories=userCategories,
+            categories=categories,
+            items=items,
+            state=state,
+            loggedIn=loggedIn)
+@app.route('/myitems/item/edit/<int:item_id>/', methods=['GET', 'POST'])
+def editItem(item_id):
+    # New session..
+    try:
+        state = login_session['state']
+    except KeyError:
+        state = setSession()
+
+    # Get all the categories
+    categories = session.query(Category).all()
+    session.commit()
+
+    # Get all the items in reverse order
+    items = session.query(Item).order_by(desc(Item.id))
+    session.commit()
+    # Are we logged in? If not, we shouldn't be here... back to start
+    if(userLoggedIn()):
+        loggedIn = True
+        user = session.query(User).filter_by(email=login_session['email']).one()
+        session.commit()
+    else:
+        loggedIn = False
+        print("loggedIn is False - Redirecting")
+        return render_template(
+            'index.html',
+            categories=categories,
+            items=items,
+            state=state,
+            loggedIn=loggedIn)
+    editItem = session.query(Item).filter_by(id=item_id).one()
+    userCategories = session.query(Category).filter_by(user_id=user.id)
+    if request.method == 'POST':
+        category = session.query(Category).filter_by(name=request.form['category']).one()
+        if(request.form['name']):
+            editItem.name = request.form['name']
+            editItem.description = request.form['description']
+            editItem.item_id = category.id
+            session.commit()
+        return redirect(url_for('my_items'))
+    else:
+        return render_template(
+            'editItem_view.html',
+            userCategories=userCategories,
+            item_id=editItem.id,
+            editItem=editItem,
+            categories=categories,
+            items=items,
+            state=state,
+            loggedIn=loggedIn)
+
+@app.route('/myitems/item/delete/<int:item_id>/', methods=['GET', 'POST'])
+def deleteItem(item_id):
+    # New session..
+    try:
+        state = login_session['state']
+    except KeyError:
+        state = setSession()
+
+    # Get all the categories
+    categories = session.query(Category).all()
+    session.commit()
+
+    # Get all the items in reverse order
+    items = session.query(Item).order_by(desc(Item.id))
+    session.commit()
+    # Are we logged in? If not, we shouldn't be here... back to start
+    if(userLoggedIn()):
+        loggedIn = True
+        user = session.query(User).filter_by(email=login_session['email']).one()
+        session.commit()
+    else:
+        loggedIn = False
+        print("loggedIn is False - Redirecting")
+        return render_template(
+            'index.html',
+            categories=categories,
+            items=items,
+            state=state,
+            loggedIn=loggedIn)
+
+    deleteItem = session.query(Item).filter_by(id=item_id).one()
+    if request.method == 'POST':
+        # test to make sure this record belongs to the logged in user
+        if(deleteItem.user_id == user.id):
+            session.delete(deleteItem)
+            session.commit()
+        else:
+            print("[!] Delete item uid was not equal to logged in user")
+        return redirect(url_for('my_items'))
+    else:
+        return render_template(
+            'deleteItem_view.html',
+            item_id=deleteItem.id,
+            deleteItem=deleteItem,
+            categories=categories,
+            items=items,
+            state=state,
+            loggedIn=loggedIn)
 # JSON endpoint for entire list
