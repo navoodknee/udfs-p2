@@ -18,6 +18,7 @@ You will need the following to run Project 1:
 ## Set up database
 
 > python database_setup.py
+
 > python fill_database.py
 
 Copy application.py onto your machine and run it with python 
