@@ -4,11 +4,14 @@ Project 2: Udacity Flask Items/Categories Project
 Author: David Nadwodny
 
 Some Concept inspired by/taxken from:
-    http://flask.pocoo.org/docs/1.0/tutorial/database/
-    http://flask.pocoo.org/docs/1.0/appcontext/
+ - https://getbootstrap.com/docs/4.3/examples/
+ - https://github.com/udacity/ud330/blob/master/Lesson4/step2/project.py
+
 
 """
-import random, string
+import random
+import string
+import json
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Item, Category, User
@@ -16,10 +19,8 @@ from database_setup import Base, Item, Category, User
 from flask import Flask, request, redirect, jsonify, url_for
 from flask import session as login_session
 from flask import render_template
-from apiclient import discovery
-import httplib2
 from oauth2client import client
-import json
+
 
 # application config
 app = Flask(__name__)
@@ -63,7 +64,7 @@ def setSession():
         for x in range(32))
     login_session['state'] = state
     print('%s state is', state)
-    return(state)
+    return (state)
 
 
 # START VIEWS
@@ -81,7 +82,7 @@ def landing():
         print("- %s" % login_session['state'])
 
     # Are we logged in?
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
     else:
         loggedIn = False
@@ -105,12 +106,13 @@ def landing():
 def test(args_session, saved_session):
     return render_template('test.html')
 
+
 # Receives AJAX from signInButton and validates google login
 @app.route('/auth', methods=['POST'])
 def auth():
 
     # validate session tokenn
-    if(checkState(request.args.get('state'), login_session['state'])):
+    if (checkState(request.args.get('state'), login_session['state'])):
         if request.method == 'POST':
 
             # get auth code out of request.data
@@ -133,9 +135,10 @@ def auth():
             login_session['name'] = credentials.id_token['name']
 
             # create new user if they aren't in our User table
-            userCount = session.query(User).filter_by(email=login_session['email']).count()
+            userCount = session.query(User).filter_by(
+                email=login_session['email']).count()
             print("userCount is %s", userCount)
-            if(userCount < 1):
+            if (userCount < 1):
                 newUser = User(email=login_session['email'])
                 session.add(newUser)
                 session.commit()
@@ -146,12 +149,13 @@ def auth():
     else:
         return redirect(url_for('landing'))
 
+
 # Receives AJAX from signOutButton / logs user out and redirects them to /
 @app.route('/logout', methods=['POST'])
 def logout():
 
     # validate session tokenn
-    if(checkState(request.args.get('state'), login_session['state'])):
+    if (checkState(request.args.get('state'), login_session['state'])):
         if request.method == 'POST':
 
             # CSRF protection. Redirect if bad
@@ -166,6 +170,7 @@ def logout():
     else:
         return redirect(url_for('landing'))
 
+
 # Category Detail view
 # lists all items that are in a category
 # authenticated users may edit / delete
@@ -179,7 +184,7 @@ def category_view(category_id):
         print("- %s" % login_session['state'])
 
     # Are we logged in?
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
     else:
         loggedIn = False
@@ -192,11 +197,12 @@ def category_view(category_id):
     items = session.query(Item).filter_by(item_id=category_id)
     session.commit()
     return render_template(
-       'category_view.html',
-       categories=categories,
-       items=items,
-       state=state,
-       loggedIn=loggedIn)
+        'category_view.html',
+        categories=categories,
+        items=items,
+        state=state,
+        loggedIn=loggedIn)
+
 
 # Item Detail view
 # shows details of a specific item
@@ -209,7 +215,7 @@ def item_view(category_id, item_id):
     except KeyError:
         state = setSession()
     # Are we logged in?
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
     else:
         loggedIn = False
@@ -226,6 +232,15 @@ def item_view(category_id, item_id):
         item=item,
         state=state,
         loggedIn=loggedIn)
+
+
+# return JSON of "arbitary" item
+@app.route('/cat/<int:category_id>/item/<int:item_id>/JSON')
+def item_viewJSON(category_id, item_id):
+
+    item = session.query(Item).get(item_id)
+    session.commit()
+    return jsonify(item=[item.serialize])
 
 
 # My items interface
@@ -245,7 +260,7 @@ def my_items():
     items = session.query(Item).order_by(desc(Item.id))
     session.commit()
     # Are we logged in?
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
     else:
         loggedIn = False
@@ -258,7 +273,8 @@ def my_items():
             loggedIn=loggedIn)
     # Get user info
     try:
-        user = session.query(User).filter_by(email=login_session['email']).one()
+        user = session.query(User).filter_by(
+            email=login_session['email']).one()
         session.commit()
         print("login_session email is %s" % login_session['email'])
         print("user is %s" % user)
@@ -274,13 +290,14 @@ def my_items():
         userCategories = None
         userItems = None
     return render_template(
-       'myitems_view.html',
-       userCategories=userCategories,
-       userItems=userItems,
-       categories=categories,
-       state=state,
-       loggedIn=loggedIn)
+        'myitems_view.html',
+        userCategories=userCategories,
+        userItems=userItems,
+        categories=categories,
+        state=state,
+        loggedIn=loggedIn)
 
+# create category
 @app.route('/myitems/category/new/', methods=['GET', 'POST'])
 def newCategory():
     # New session..
@@ -297,9 +314,10 @@ def newCategory():
     items = session.query(Item).order_by(desc(Item.id))
     session.commit()
     # Are we logged in? If not, we shouldn't be here... back to start
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
-        user = session.query(User).filter_by(email=login_session['email']).one()
+        user = session.query(User).filter_by(
+            email=login_session['email']).one()
         session.commit()
     else:
         loggedIn = False
@@ -324,7 +342,9 @@ def newCategory():
             state=state,
             loggedIn=loggedIn)
 
-@app.route('/myitems/category/edit/<int:category_id>/', methods=['GET', 'POST'])
+# edit cateogry
+@app.route(
+    '/myitems/category/edit/<int:category_id>/', methods=['GET', 'POST'])
 def editCategory(category_id):
     # New session..
     try:
@@ -340,7 +360,7 @@ def editCategory(category_id):
     items = session.query(Item).order_by(desc(Item.id))
     session.commit()
     # Are we logged in? If not, we shouldn't be here... back to start
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
     else:
         loggedIn = False
@@ -355,7 +375,7 @@ def editCategory(category_id):
     editCategory = session.query(Category).filter_by(id=category_id).one()
     if request.method == 'POST':
 
-        if(request.form['name']):
+        if (request.form['name']):
             editCategory.name = request.form['name']
             session.commit()
         return redirect(url_for('my_items'))
@@ -369,7 +389,9 @@ def editCategory(category_id):
             state=state,
             loggedIn=loggedIn)
 
-@app.route('/myitems/category/delete/<int:category_id>/', methods=['GET', 'POST'])
+# delete category, does not delete items, as user may want to reassociate
+@app.route(
+    '/myitems/category/delete/<int:category_id>/', methods=['GET', 'POST'])
 def deleteCategory(category_id):
     # New session..
     try:
@@ -385,9 +407,10 @@ def deleteCategory(category_id):
     items = session.query(Item).order_by(desc(Item.id))
     session.commit()
     # Are we logged in? If not, we shouldn't be here... back to start
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
-        user = session.query(User).filter_by(email=login_session['email']).one()
+        user = session.query(User).filter_by(
+            email=login_session['email']).one()
     else:
         loggedIn = False
         print("loggedIn is False - Redirecting")
@@ -401,7 +424,7 @@ def deleteCategory(category_id):
     deleteCategory = session.query(Category).filter_by(id=category_id).one()
     if request.method == 'POST':
         # test to make sure this record belongs to the logged in user
-        if(deleteCategory.user_id == user.id):
+        if (deleteCategory.user_id == user.id):
             session.delete(deleteCategory)
             session.commit()
         else:
@@ -416,6 +439,8 @@ def deleteCategory(category_id):
             items=items,
             state=state,
             loggedIn=loggedIn)
+
+# Create new item in the database
 @app.route('/myitems/itemy/new/', methods=['GET', 'POST'])
 def newItem():
     # New session..
@@ -432,9 +457,10 @@ def newItem():
     items = session.query(Item).order_by(desc(Item.id))
     session.commit()
     # Are we logged in? If not, we shouldn't be here... back to start
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
-        user = session.query(User).filter_by(email=login_session['email']).one()
+        user = session.query(User).filter_by(
+            email=login_session['email']).one()
         session.commit()
     else:
         loggedIn = False
@@ -449,7 +475,8 @@ def newItem():
     userCategories = session.query(Category).filter_by(user_id=user.id)
     if request.method == 'POST':
         #
-        category = session.query(Category).filter_by(name=request.form['category']).one()
+        category = session.query(Category).filter_by(
+            name=request.form['category']).one()
         newItem = Item(
             name=request.form['name'],
             description=request.form['description'],
@@ -466,6 +493,8 @@ def newItem():
             items=items,
             state=state,
             loggedIn=loggedIn)
+
+# edit item in database
 @app.route('/myitems/item/edit/<int:item_id>/', methods=['GET', 'POST'])
 def editItem(item_id):
     # New session..
@@ -482,9 +511,10 @@ def editItem(item_id):
     items = session.query(Item).order_by(desc(Item.id))
     session.commit()
     # Are we logged in? If not, we shouldn't be here... back to start
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
-        user = session.query(User).filter_by(email=login_session['email']).one()
+        user = session.query(User).filter_by(
+            email=login_session['email']).one()
         session.commit()
     else:
         loggedIn = False
@@ -498,8 +528,9 @@ def editItem(item_id):
     editItem = session.query(Item).filter_by(id=item_id).one()
     userCategories = session.query(Category).filter_by(user_id=user.id)
     if request.method == 'POST':
-        category = session.query(Category).filter_by(name=request.form['category']).one()
-        if(request.form['name']):
+        category = session.query(Category).filter_by(
+            name=request.form['category']).one()
+        if (request.form['name']):
             editItem.name = request.form['name']
             editItem.description = request.form['description']
             editItem.item_id = category.id
@@ -516,6 +547,7 @@ def editItem(item_id):
             state=state,
             loggedIn=loggedIn)
 
+# deletes item from database
 @app.route('/myitems/item/delete/<int:item_id>/', methods=['GET', 'POST'])
 def deleteItem(item_id):
     # New session..
@@ -532,9 +564,10 @@ def deleteItem(item_id):
     items = session.query(Item).order_by(desc(Item.id))
     session.commit()
     # Are we logged in? If not, we shouldn't be here... back to start
-    if(userLoggedIn()):
+    if (userLoggedIn()):
         loggedIn = True
-        user = session.query(User).filter_by(email=login_session['email']).one()
+        user = session.query(User).filter_by(
+            email=login_session['email']).one()
         session.commit()
     else:
         loggedIn = False
@@ -549,7 +582,7 @@ def deleteItem(item_id):
     deleteItem = session.query(Item).filter_by(id=item_id).one()
     if request.method == 'POST':
         # test to make sure this record belongs to the logged in user
-        if(deleteItem.user_id == user.id):
+        if (deleteItem.user_id == user.id):
             session.delete(deleteItem)
             session.commit()
         else:
@@ -564,11 +597,15 @@ def deleteItem(item_id):
             items=items,
             state=state,
             loggedIn=loggedIn)
+
+
 # JSON endpoint for category
 @app.route('/cat/JSON')
 def categoryJSON():
     category = session.query(Category).all()
     return jsonify(category=[c.serialize for c in category])
+
+
 # JSON endpoint for items
 @app.route('/item/JSON')
 def itemJSON():
