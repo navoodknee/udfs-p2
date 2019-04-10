@@ -564,4 +564,13 @@ def deleteItem(item_id):
             items=items,
             state=state,
             loggedIn=loggedIn)
-# JSON endpoint for entire list
+# JSON endpoint for category
+@app.route('/cat/JSON')
+def categoryJSON():
+    category = session.query(Category).all()
+    return jsonify(category=[c.serialize for c in category])
+# JSON endpoint for items
+@app.route('/item/JSON')
+def itemJSON():
+    items = session.query(Item).all()
+    return jsonify(items=[i.serialize for i in items])
