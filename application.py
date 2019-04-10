@@ -21,7 +21,6 @@ from flask import session as login_session
 from flask import render_template
 from oauth2client import client
 
-
 # application config
 app = Flask(__name__)
 CLIENT_SECRET_FILE = 'client_secrets.json'
@@ -68,11 +67,12 @@ def setSession():
 
 
 # START VIEWS
-# main landing view
-# lists all categories and list of latest items
-# authenticated users can add items
 @app.route('/')
 def landing():
+    """Main landing view
+    lists all categories and list of latest items
+    authenticated users can add items
+    """
 
     # New session..
     try:
@@ -171,11 +171,13 @@ def logout():
         return redirect(url_for('landing'))
 
 
-# Category Detail view
-# lists all items that are in a category
-# authenticated users may edit / delete
 @app.route('/cat/<int:category_id>/')
 def category_view(category_id):
+    """Category Detail view
+    lists all items that are in a category
+    authenticated users may edit / delete
+    """
+
     # New session..
     try:
         state = login_session['state']
@@ -204,11 +206,12 @@ def category_view(category_id):
         loggedIn=loggedIn)
 
 
-# Item Detail view
-# shows details of a specific item
-# authenticated users may edit / delete
 @app.route('/cat/<int:category_id>/item/<int:item_id>/')
 def item_view(category_id, item_id):
+    """Item Detail view
+    shows details of a specific item
+    authenticated users may edit / delete
+    """
     # New session..
     try:
         state = login_session['state']
@@ -297,6 +300,7 @@ def my_items():
         state=state,
         loggedIn=loggedIn)
 
+
 # create category
 @app.route('/myitems/category/new/', methods=['GET', 'POST'])
 def newCategory():
@@ -341,6 +345,7 @@ def newCategory():
             items=items,
             state=state,
             loggedIn=loggedIn)
+
 
 # edit cateogry
 @app.route(
@@ -388,6 +393,7 @@ def editCategory(category_id):
             items=items,
             state=state,
             loggedIn=loggedIn)
+
 
 # delete category, does not delete items, as user may want to reassociate
 @app.route(
@@ -439,6 +445,7 @@ def deleteCategory(category_id):
             items=items,
             state=state,
             loggedIn=loggedIn)
+
 
 # Create new item in the database
 @app.route('/myitems/itemy/new/', methods=['GET', 'POST'])
@@ -494,6 +501,7 @@ def newItem():
             state=state,
             loggedIn=loggedIn)
 
+
 # edit item in database
 @app.route('/myitems/item/edit/<int:item_id>/', methods=['GET', 'POST'])
 def editItem(item_id):
@@ -546,6 +554,7 @@ def editItem(item_id):
             items=items,
             state=state,
             loggedIn=loggedIn)
+
 
 # deletes item from database
 @app.route('/myitems/item/delete/<int:item_id>/', methods=['GET', 'POST'])
