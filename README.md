@@ -22,20 +22,15 @@ You will need the following to run Project 1:
 > python fill_database.py
 
 Copy application.py onto your machine and run it with flask 
-
+> export FLASK_APP=application.py
 > flask run --host 0.0.0.0 
 
-> $ python application.py
->  * Serving Flask app "project2" (lazy loading)
->  * Environment: production
->    WARNING: Do not use the development server in a production environment.
->    Use a production WSGI server instead.
->  * Debug mode: on
->  * Running on http://0.0.0.0:8000/ (Press CTRL+C to quit)
->  * Restarting with stat
->  * Debugger is active!
->  * Debugger PIN: 325-904-188
-
+ * Serving Flask app "application.py"
+ * Environment: production
+   WARNING: Do not use the development server in a production environment.
+   Use a production WSGI server instead.
+ * Debug mode: off
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 
 ## Authors
 
