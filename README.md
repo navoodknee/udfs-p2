@@ -4,8 +4,6 @@ This project asks a student to create a database driven web application that con
 
 ## Getting Started
 
-code is exectued with python application.py. No arguments are needed or parsed. 
-
 ### Prerequisites
 
 You will need the following to run Project 1:
@@ -23,6 +21,7 @@ You will need the following to run Project 1:
 
 Copy application.py onto your machine and run it with flask 
 > export FLASK_APP=application.py
+
 > flask run --host 0.0.0.0 
 
  * Serving Flask app "application.py"
