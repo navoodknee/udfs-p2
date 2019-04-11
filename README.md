@@ -21,9 +21,9 @@ You will need the following to run Project 1:
 
 > python fill_database.py
 
-Copy application.py onto your machine and run it with python 
+Copy application.py onto your machine and run it with flask 
 
-> python application.py
+> flask run --host 0.0.0.0 
 
 > $ python application.py
 >  * Serving Flask app "project2" (lazy loading)
